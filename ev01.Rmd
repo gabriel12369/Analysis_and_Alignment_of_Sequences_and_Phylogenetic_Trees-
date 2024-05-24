@@ -1,0 +1,193 @@
+---
+title: "Evidencia 1 | Análisis inicial"
+author: "Ángel Gabriel Esparza Espinoza, A01742534"
+date: "2023-06-05"
+output: pdf_document
+---
+# 1.Investiga, ¿Cuál es la situación actual de COVID-19 a nivel mundial, en México, en tu estado de origen y en tu municipio, alcaldía o colonia?
+
+Actualmente la situación que se vive con respecto al COVID-19, sin duda es menos preocupante que hace dos años. De acuerdo a las estadísticas de la Universidad Johns Hopkins, en los 28 días que acaban de transcurrir, se detectaron a nivel mundial un total de 4,035,254 casos de este virus. Por otro lado, en el país mexicano se identificaron 82,596 casos. Siendo más específicos en el estado de Sinaloa se estableció que hubo 1214 casos confirmados. Estas estadísticas, nos indican que el virus sigue presente en el ecosistema y conforme pase el tiempo los casos irán bajando como ocurrió en el pasado. (Johns Hopkins University & Medicine, 2023)
+
+# 2.¿Cuál fue la primera variante del virus que se propagó a todo el mundo?
+
+La primera variante del SARS-CoV-2, fue la variante B.1.351 o también conocida como variante Beta. Esta fue documentada por primera vez,  en el mes de mayo del año 2020, en el país de Sudáfrica. Fue designada como variante de preocupación el día 18 de diciembre de 2020, igual que la variante Alfa.  (Universidad Maimónides, s.f.).
+
+# 3.¿Cuáles son las otras variantes del virus que existen en otras regiones del mundo?
+
+Otras variantes del SARS-CoV-2 que fueron catalogadas, son la variante Alfa, Beta, Gamma, Delta, Epsilon, Eta, Iota, Kappa, Zeta y Mu. Todas ellas actualmente son variantes bajo monitoreo. En cambio, otra variante que se presentó que fue denominada Ómicron, por el momento está catalogada como una variante de preocupación. (OMS, 2023)
+
+# 4.¿Cómo buscarías información de la variante del virus en tu país?
+
+La forma para encontrar información acerca de las variantes que se pudieran estar presentando en el país, fuera estando revisando constantemente las noticias nacionales para estar informado acerca de cualquier alerta acerca del virus. También otra manera de obtener información fuera por medio de páginas confiables de internet como universidades, que hablen y den información sobre el  SARS-CoV-2. Por último, otra forma de obtener información, fuera preguntando a especialistas en esa área, que radiquen en la localidad para que puedan brindar información acerca de cómo se está comportando el virus y si es necesario tomar acciones precautorias en la ciudad.
+
+# 5.Imagina que te encuentras en una situación similar a la de Li Wenliang, médico chino que intentó alertar sobre el brote de coronavirus en su país, pero fue detenido por las autoridades y obligado a retractarse, ¿qué harías en su caso? Selecciona un inciso: a) Lo reportas al centro de investigación o la universidad. b) Lo reportas a la prensa. c) Guardas la información. Elige y justifica tu respuesta.
+
+En mi caso reportaría a la prensa sobre el brote del coronavirus, ya que al tener identificado que esta podría ser un virus de gran impacto en la sociedad, donde podrían infectarse y morirse millones de personas, y podría causar una catástrofe mundial, buscaría la forma de dar a conocer al mundo mediante la prensa, este nuevo virus, y alertarles a todas las personas sobre su gran potencial de peligro, para que puedan ser advertidos, y el tema obtenga la atención de las autoridades, para que hagan lo que se debe hacer.
+
+1. Obtén las secuencias de las variantes de SARS-CoV-2 desde el NCBI o el buscador de virus del NCBI.
+```{r}
+setwd("D:/Tareas/Tec de Monterrey/2° Semestre/Biología Computacional/sarscov2_genomes")
+library(seqinr)
+alfa <- read.fasta(file="alfa.fasta", as.string=T, 
+                     forceDNAtolower = F, set.attributes = F)
+beta <- read.fasta(file="beta.fasta", as.string=T, 
+                     forceDNAtolower = F, set.attributes = T)
+delta <- read.fasta(file="delta.fasta", as.string=T, 
+                        forceDNAtolower = F, set.attributes = F)
+gamma <- read.fasta(file="gamma.fasta", as.string=T, 
+                   forceDNAtolower = F, set.attributes = F)
+omicron <- read.fasta(file="omicron.fasta", as.string=T, 
+                   forceDNAtolower = F, set.attributes = F)
+```
+
+2. Calcula la longitud de las secuencias de cada variante.
+```{r cars}
+nAlfa=nchar(alfa)
+nBeta=nchar(beta)
+nDelta=nchar(delta)
+nGamma=nchar(gamma)
+nOmicron=nchar(omicron)
+paste("El tamaño de la secuencia de la variante Alfa del virus SARS-CoV-2 es: ",nAlfa)
+paste("El tamaño de la secuencia de la variante Beta del virus SARS-CoV-2 es: ",nBeta)
+paste("El tamaño de la secuencia de la variante Delta del virus SARS-CoV-2 es: ",nDelta)
+paste("El tamaño de la secuencia de la variante Gamma del virus SARS-CoV-2 es: ",nGamma)
+paste("El tamaño de la secuencia de la variante Omicron del virus SARS-CoV-2 es: ",nOmicron)
+```
+```{r}
+require(stringr)
+#Alfa
+naA <- str_count(alfa,pattern="A")
+naT <- str_count(alfa,pattern="T")
+naC <- str_count(alfa,pattern="C")
+naG <- str_count(alfa,pattern="G")
+ntotal <- str_count(alfa)
+porcentaje_aA <- round((naA/ntotal*100),4)
+porcentaje_aT <- round((naT/ntotal*100),4)
+porcentaje_aC <- round((naC/ntotal*100),4)
+porcentaje_aG <- round((naG/ntotal*100),4)
+
+#Beta
+nbA <- str_count(beta,pattern="A")
+nbT <- str_count(beta,pattern="T")
+nbC <- str_count(beta,pattern="C")
+nbG <- str_count(beta,pattern="G")
+ntotal <- str_count(beta)
+porcentaje_bA <- round((nbA/ntotal*100),4)
+porcentaje_bT <- round((nbT/ntotal*100),4)
+porcentaje_bC <- round((nbC/ntotal*100),4)
+porcentaje_bG <- round((nbG/ntotal*100),4)
+
+#Delta
+ndA <- str_count(delta,pattern="A")
+ndT <- str_count(delta,pattern="T")
+ndC <- str_count(delta,pattern="C")
+ndG <- str_count(delta,pattern="G")
+ntotal <- str_count(delta)
+porcentaje_dA <- round((ndA/ntotal*100),4)
+porcentaje_dT <- round((ndT/ntotal*100),4)
+porcentaje_dC <- round((ndC/ntotal*100),4)
+porcentaje_dG <- round((ndG/ntotal*100),4)
+
+#Gamma
+ngA <- str_count(gamma,pattern="A")
+ngT <- str_count(gamma,pattern="T")
+ngC <- str_count(gamma,pattern="C")
+ngG <- str_count(gamma,pattern="G")
+ntotal <- str_count(gamma)
+porcentaje_gA <- round((ngA/ntotal*100),4)
+porcentaje_gT <- round((ngT/ntotal*100),4)
+porcentaje_gC <- round((ngC/ntotal*100),4)
+porcentaje_gG <- round((ngG/ntotal*100),4)
+
+
+#Omicron
+noA <- str_count(omicron,pattern="A")
+noT <- str_count(omicron,pattern="T")
+noC <- str_count(omicron,pattern="C")
+noG <- str_count(omicron,pattern="G")
+ntotal <- str_count(omicron)
+porcentaje_oA <- round((noA/ntotal*100),4)
+porcentaje_oT <- round((noT/ntotal*100),4)
+porcentaje_oC <- round((noC/ntotal*100),4)
+porcentaje_oG <- round((noG/ntotal*100),4)
+
+```
+
+3. Crea una gráfica donde compares las bases de ADN que componen a cada una de las variantes del virus.
+```{r}
+require(ggplot2)
+require(reshape2)
+data<-data.frame(Variante=c("Alfa", "Beta", "Delta","Gamma", "Omicron"), A = c(porcentaje_aA, porcentaje_bA, porcentaje_dA, porcentaje_gA, porcentaje_oA), T = c(porcentaje_aT, porcentaje_bT, porcentaje_dT, porcentaje_gT, porcentaje_oT), C = c(porcentaje_aC, porcentaje_bC, porcentaje_dC, porcentaje_gC, porcentaje_oC), G = c(porcentaje_aG, porcentaje_bG, porcentaje_dG, porcentaje_gG, porcentaje_oG))
+
+data_melted <- melt(data, id.vars = "Variante", variable.name = "Nucleótido", value.name = "Porcentaje")
+
+ggplot(data_melted, aes(x=Variante, y=Porcentaje, fill = Nucleótido)) + geom_bar(stat = "identity", position = "dodge") + labs(x="Secuencia", y="Porcentaje", fill="Nucleótido") + ggtitle("Composición de nucleótidos") + theme_bw()
+```
+4. ¿Cuál es el %GC de cada variante?
+```{r}
+gcA=porcentaje_aC+porcentaje_aG
+gcB=porcentaje_bC+porcentaje_bG
+gcD=porcentaje_dC+porcentaje_dG
+gcG=porcentaje_gC+porcentaje_gG
+gcO=porcentaje_oC+porcentaje_oG
+cat("Porcentaje de GC en la variante Alfa: ",gcA,"%","\n")
+cat("Porcentaje de GC en la variante Beta: ",gcB,"%","\n")
+cat("Porcentaje de GC en la variante Delta: ",gcD,"%","\n")
+cat("Porcentaje de GC en la veriante Gamma: ",gcG,"%","\n")
+cat("Porcentaje de GC en la variante Omicron: ",gcO,"%","\n")
+```
+5. Crea las secuencias contrasentido de cada variante.
+```{r}
+complementaria <- function(x) {
+  comp = character()
+    for(i in 1:nchar(x)) {
+    y = substr(x, i, i)
+    z = character()
+    if(y == "A") z = "T";
+    if(y == "T") z = "A";
+    if(y == "G") z = "C";
+    if(y == "C") z = "G";
+    comp = c(comp, z)
+  }
+  return(paste(comp, collapse = ""))
+}
+cat("Variante Alfa","\n")
+cat("Cadena de la variante Alfa","\n")
+paste(alfa)
+cat("\nCadena complementaria de la variante Alfa","\n")
+complementaria(alfa)
+cat("----------------------------------------------------","\n")
+cat("Variante Beta","\n")
+cat("Cadena de la variante Beta","\n")
+paste(beta)
+cat("\nCadena complementaria de la variante Beta","\n")
+complementaria(beta)
+cat("----------------------------------------------------","\n")
+cat("Variante Delta","\n")
+cat("Cadena de la variante Delta","\n")
+paste(delta)
+cat("\nCadena complementaria de la variante Delta","\n")
+complementaria(delta)
+cat("----------------------------------------------------","\n")
+cat("Variante Gamma","\n")
+cat("Cadena de la variante Gamma","\n")
+paste(gamma)
+cat("\nCadena complementaria de la variante Gamma","\n")
+complementaria(gamma)
+cat("----------------------------------------------------","\n")
+cat("Variante Omicron","\n")
+cat("Cadena de la variante Omicron","\n")
+paste(omicron)
+cat("\nCadena complementaria de la variante Omicron","\n")
+complementaria(omicron)
+```
+# 6. Agrega una interpretación escrita de las gráficas que integras.
+
+De acuerdo con la gráfica en donde se presentan los porcentajes de los nucleótidos de cada variante del virus, se puede observar que todas las variantes presentadas contienen porcentajes similares, en donde varían muy poco de una variante a otra. Con esto se puede identificar que poseen porcentajes similares debido a que las distintas variantes contienen el mismo virus. Además, de acuerdo con esta gráfica se puede deducir que las variantes de SARS-CoV-2 no dependen tanto del cambio de los porcentajes de los nucleótidos que contienen, sino que tiene un mayor impacto la posición en donde se da el cambio de nucleótidos para la función de las proteínas.
+
+# Referencias:
+Johns Hopkins University & Medicine. (2023). COVID-19 Dashboard by the Center for Systems Science and Engineering (CSSE).  En  Coronavirus Resource Center. Recuperado de: https://coronavirus.jhu.edu/map.html
+
+Organización Mundial de la Salud. (2023). Historical working definitions and primary actions for SARS-CoV-2 variants. Recuperado de: https://www.who.int/publications/m/item/historical-working-definitions-and-primary-actions-for-sars-cov-2-variants
+
+Universidad Maimónides. (s.f.). Alfa, beta, gamma, delta y ómicron: diferencias y letalidad de las variantes del COVID-19 que marcaron la pandemia. En Maimonides Medical Center. Recuperado de: https://www.maimonides.edu/alfa-beta-gamma-delta-y-omicron-diferencias-y-letalidad-de-las-variantes-del-covid-19-que-marcaron-la-pandemia/ 

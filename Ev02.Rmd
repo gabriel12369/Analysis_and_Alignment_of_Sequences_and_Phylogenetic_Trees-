@@ -1,0 +1,412 @@
+---
+title: "Evidencia 2 | Proyecto integrador"
+author: "Ángel Gabriel Esparza Espinoza, A01742534"
+date: "2023-06-14"
+output: html_document
+---
+
+PARTE 1 - Video
+
+En un video, responde justificadamente las siguientes preguntas:
+
+1. ¿Cuáles son los virus “similares” a SARS-CoV-2 en el mundo? Obtén tus referencias de PUBMED.
+ 
+2. ¿Cuáles son los coronavirus reportados en otras especies que pueden ser cercanos al genoma de SARS-CoV-2? Incluye de qué especies son y menciona las referencias de los artículos consultados en PUBMED.
+
+3. En relación con la situación actual reflexiona, ¿qué propondrías que se deba hacer durante la contingencia del SARS-CoV-2 en comunidades de bajos recursos? Si tu vivieras en una situación de escasos recursos, ¿qué harías? Justifica tu respuesta.
+
+Importante:
+Tu video debe tener una duración máxima de 3 minutos. 
+Debes salir en el video.
+Se debe dar respuesta a las 3 preguntas antes mencionadas.
+Puedes compartir algún documento o presentación de apoyo.
+Sube tu video a Youtube y comparte la liga. Revisa las políticas de privacidad y asegúrate que tu profesor pueda visualizarlo sin problemas. Puedes configurarlo como "No listado" para que no aparezca como visible al público.
+
+Incluye aquí la liga de tu video: 
+ https://drive.google.com/file/d/10cgLsTSew5_K5Ue5VI6bTGfSgH3amhlr/view?usp=sharing 
+
+PARTE 2 - Código
+
+Realiza lo siguiente en un script de R y código:
+
+# 1. De las siguientes tres opciones, selecciona una opción para investigar:
+a) Analizar las secuencias de SARS-CoV-2 reportadas en los 20 países con más casos reportados. Y puedes tratar de responder a la pregunta: ¿Son muy diferentes las variantes entre cada país? ¿Es diferente el SARS-CoV-2 entre las diferentes poblaciones: Asiática, Hispana, Europea o Africana?
+b) Trabajar con las secuencias de coronavirus similares a SARS-CoV-2 que infectan otras especies animales, para tratar de explicar el fenómeno de zoonosis del virus. Incluye 20 virus diferentes. Puedes trabajar con variantes de SARS-CoV-2 de otros países.
+c) Estudia la cercanía de SARS-CoV-2 con otros coronavirus humanos que ocasionan enfermedades similares (como MERS). En tu investigación debes trabajar con 20 virus diferentes.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Carga las librerías necesarias:
+```{r}
+library(Biostrings)
+library(seqinr)
+library(adegenet)
+library(ape)
+library(ggtree)
+library(DECIPHER)
+library(viridis)
+library(ggplot2)
+library(msa)
+```
+
+
+Importar lista de genbank IDs con genomas de virus (deben ser 20 en total):
+```{r}
+# En las 3 opciones para investigar se pueden incluir estas 6 secuencias + 14 secuencias adicionales
+# Las siguientes 6 secuencias corresponden a SARS-CoV-2 Wuhan-Hu-1 y sus variantes alfa, beta, delta, gamma y omicron 
+virus <- c("NC_045512","OV054768.1","MZ433432.1","MZ477859.1","OK091006.1","OM570264.1","KY862074.1","AB691767.2","KU131570.1","MH940245.1","MG923481.1","NC_019843.3","OP712623.1","MG428702.1","JX504050.1","HM034837.1","ON128609.1","AB691766.2","OM386799.1","JX163928.1") 
+```
+
+
+Obtén las secuencias:
+```{r}
+sequences <- read.GenBank(virus,
+                          seq.names = access.nb,
+                          species.names = T,
+                          as.character = F)
+str(sequences)
+```
+
+
+Concentrar en un archivo fasta todas las secuencias y exportar:
+```{r}
+#setwd("D:/Tareas/Tec de Monterrey/2° Semestre/Biología Computacional") # cambiar para cada usuario 
+write.dna(sequences, "sequences.fasta", format = "fasta", nbcol = 1, colsep = " ", colw = 60)
+
+```
+
+
+Cargar secuencias para analizar longitud y composición de nucleótidos:
+```{r}
+sequences_comp <- read.fasta(file="sequences.fasta", as.string=T, 
+                     forceDNAtolower = F, set.attributes = F)
+sequences_comp
+```
+
+Cargar secuencias para análisis filogenético:
+```{r}
+# Convertir el archivo fasta en un objeto reconocible para el paquete msa
+sequences_phylo <- readDNAStringSet(filepath = "sequences.fasta", format = "fasta")
+sequences_phylo
+```
+
+
+# 2. Calcula la longitud de las secuencias.
+```{r}
+Longitud_sec=nchar(sequences_comp)
+for (i in 1:20){
+  cat("El tamaño de la secuencia del virus ",virus[i]," es: ",Longitud_sec[i],"\n")
+}
+```
+
+
+# 3. Crea una sola gráfica donde se compare el porcentaje de bases de ADN que componen las secuencias. 
+```{r}
+require(stringr)
+#1
+nA_1 <- str_count(sequences_comp[1],pattern="a")
+nT_1 <- str_count(sequences_comp[1],pattern="t")
+nC_1 <- str_count(sequences_comp[1],pattern="c")
+nG_1 <- str_count(sequences_comp[1],pattern="g")
+ntotal <- str_count(sequences_comp[1])
+porcentaje_A1 <- round((nA_1/ntotal*100),4)
+porcentaje_T1 <- round((nT_1/ntotal*100),4)
+porcentaje_C1 <- round((nC_1/ntotal*100),4)
+porcentaje_G1 <- round((nG_1/ntotal*100),4)
+
+#2
+nA_2 <- str_count(sequences_comp[2],pattern="a")
+nT_2 <- str_count(sequences_comp[2],pattern="t")
+nC_2 <- str_count(sequences_comp[2],pattern="c")
+nG_2 <- str_count(sequences_comp[2],pattern="g")
+ntotal <- str_count(sequences_comp[2])
+porcentaje_A2 <- round((nA_2/ntotal*100),4)
+porcentaje_T2 <- round((nT_2/ntotal*100),4)
+porcentaje_C2 <- round((nC_2/ntotal*100),4)
+porcentaje_G2 <- round((nG_2/ntotal*100),4)
+
+#3
+nA_3 <- str_count(sequences_comp[3],pattern="a")
+nT_3 <- str_count(sequences_comp[3],pattern="t")
+nC_3 <- str_count(sequences_comp[3],pattern="c")
+nG_3 <- str_count(sequences_comp[3],pattern="g")
+ntotal <- str_count(sequences_comp[3])
+porcentaje_A3 <- round((nA_3/ntotal*100),4)
+porcentaje_T3 <- round((nT_3/ntotal*100),4)
+porcentaje_C3 <- round((nC_3/ntotal*100),4)
+porcentaje_G3 <- round((nG_3/ntotal*100),4)
+
+#4
+nA_4 <- str_count(sequences_comp[4],pattern="a")
+nT_4 <- str_count(sequences_comp[4],pattern="t")
+nC_4 <- str_count(sequences_comp[4],pattern="c")
+nG_4 <- str_count(sequences_comp[4],pattern="g")
+ntotal <- str_count(sequences_comp[4])
+porcentaje_A4 <- round((nA_4/ntotal*100),4)
+porcentaje_T4 <- round((nT_4/ntotal*100),4)
+porcentaje_C4 <- round((nC_4/ntotal*100),4)
+porcentaje_G4 <- round((nG_4/ntotal*100),4)
+
+#5
+nA_5 <- str_count(sequences_comp[5],pattern="a")
+nT_5 <- str_count(sequences_comp[5],pattern="t")
+nC_5 <- str_count(sequences_comp[5],pattern="c")
+nG_5 <- str_count(sequences_comp[5],pattern="g")
+ntotal <- str_count(sequences_comp[5])
+porcentaje_A5 <- round((nA_5/ntotal*100),4)
+porcentaje_T5 <- round((nT_5/ntotal*100),4)
+porcentaje_C5 <- round((nC_5/ntotal*100),4)
+porcentaje_G5 <- round((nG_5/ntotal*100),4)
+
+#6
+nA_6 <- str_count(sequences_comp[6],pattern="a")
+nT_6 <- str_count(sequences_comp[6],pattern="t")
+nC_6 <- str_count(sequences_comp[6],pattern="c")
+nG_6 <- str_count(sequences_comp[6],pattern="g")
+ntotal <- str_count(sequences_comp[6])
+porcentaje_A6 <- round((nA_6/ntotal*100),4)
+porcentaje_T6 <- round((nT_6/ntotal*100),4)
+porcentaje_C6 <- round((nC_6/ntotal*100),4)
+porcentaje_G6 <- round((nG_6/ntotal*100),4)
+
+#7
+nA_7 <- str_count(sequences_comp[7],pattern="a")
+nT_7 <- str_count(sequences_comp[7],pattern="t")
+nC_7 <- str_count(sequences_comp[7],pattern="c")
+nG_7 <- str_count(sequences_comp[7],pattern="g")
+ntotal <- str_count(sequences_comp[7])
+porcentaje_A7 <- round((nA_7/ntotal*100),4)
+porcentaje_T7 <- round((nT_7/ntotal*100),4)
+porcentaje_C7 <- round((nC_7/ntotal*100),4)
+porcentaje_G7 <- round((nG_7/ntotal*100),4)
+
+#8
+nA_8 <- str_count(sequences_comp[8],pattern="a")
+nT_8 <- str_count(sequences_comp[8],pattern="t")
+nC_8 <- str_count(sequences_comp[8],pattern="c")
+nG_8 <- str_count(sequences_comp[8],pattern="g")
+ntotal <- str_count(sequences_comp[8])
+porcentaje_A8 <- round((nA_8/ntotal*100),4)
+porcentaje_T8 <- round((nT_8/ntotal*100),4)
+porcentaje_C8 <- round((nC_8/ntotal*100),4)
+porcentaje_G8 <- round((nG_8/ntotal*100),4)
+
+#9
+nA_9 <- str_count(sequences_comp[9],pattern="a")
+nT_9 <- str_count(sequences_comp[9],pattern="t")
+nC_9 <- str_count(sequences_comp[9],pattern="c")
+nG_9 <- str_count(sequences_comp[9],pattern="g")
+ntotal <- str_count(sequences_comp[9])
+porcentaje_A9 <- round((nA_9/ntotal*100),4)
+porcentaje_T9 <- round((nT_9/ntotal*100),4)
+porcentaje_C9 <- round((nC_9/ntotal*100),4)
+porcentaje_G9 <- round((nG_9/ntotal*100),4)
+
+#10
+nA_10 <- str_count(sequences_comp[10],pattern="a")
+nT_10 <- str_count(sequences_comp[10],pattern="t")
+nC_10 <- str_count(sequences_comp[10],pattern="c")
+nG_10 <- str_count(sequences_comp[10],pattern="g")
+ntotal <- str_count(sequences_comp[10])
+porcentaje_A10 <- round((nA_10/ntotal*100),4)
+porcentaje_T10 <- round((nT_10/ntotal*100),4)
+porcentaje_C10 <- round((nC_10/ntotal*100),4)
+porcentaje_G10 <- round((nG_10/ntotal*100),4)
+
+#11
+nA_11 <- str_count(sequences_comp[11],pattern="a")
+nT_11 <- str_count(sequences_comp[11],pattern="t")
+nC_11 <- str_count(sequences_comp[11],pattern="c")
+nG_11 <- str_count(sequences_comp[11],pattern="g")
+ntotal <- str_count(sequences_comp[11])
+porcentaje_A11 <- round((nA_11/ntotal*100),4)
+porcentaje_T11 <- round((nT_11/ntotal*100),4)
+porcentaje_C11 <- round((nC_11/ntotal*100),4)
+porcentaje_G11 <- round((nG_11/ntotal*100),4)
+
+#12
+nA_12 <- str_count(sequences_comp[12],pattern="a")
+nT_12 <- str_count(sequences_comp[12],pattern="t")
+nC_12 <- str_count(sequences_comp[12],pattern="c")
+nG_12 <- str_count(sequences_comp[12],pattern="g")
+ntotal <- str_count(sequences_comp[12])
+porcentaje_A12 <- round((nA_12/ntotal*100),4)
+porcentaje_T12 <- round((nT_12/ntotal*100),4)
+porcentaje_C12 <- round((nC_12/ntotal*100),4)
+porcentaje_G12 <- round((nG_12/ntotal*100),4)
+
+#13
+nA_13 <- str_count(sequences_comp[13],pattern="a")
+nT_13 <- str_count(sequences_comp[13],pattern="t")
+nC_13 <- str_count(sequences_comp[13],pattern="c")
+nG_13 <- str_count(sequences_comp[13],pattern="g")
+ntotal <- str_count(sequences_comp[13])
+porcentaje_A13 <- round((nA_13/ntotal*100),4)
+porcentaje_T13 <- round((nT_13/ntotal*100),4)
+porcentaje_C13 <- round((nC_13/ntotal*100),4)
+porcentaje_G13 <- round((nG_13/ntotal*100),4)
+
+#14
+nA_14 <- str_count(sequences_comp[14],pattern="a")
+nT_14 <- str_count(sequences_comp[14],pattern="t")
+nC_14 <- str_count(sequences_comp[14],pattern="c")
+nG_14 <- str_count(sequences_comp[14],pattern="g")
+ntotal <- str_count(sequences_comp[14])
+porcentaje_A14 <- round((nA_14/ntotal*100),4)
+porcentaje_T14 <- round((nT_14/ntotal*100),4)
+porcentaje_C14 <- round((nC_14/ntotal*100),4)
+porcentaje_G14 <- round((nG_14/ntotal*100),4)
+
+#15
+nA_15 <- str_count(sequences_comp[15],pattern="a")
+nT_15 <- str_count(sequences_comp[15],pattern="t")
+nC_15 <- str_count(sequences_comp[15],pattern="c")
+nG_15 <- str_count(sequences_comp[15],pattern="g")
+ntotal <- str_count(sequences_comp[15])
+porcentaje_A15 <- round((nA_15/ntotal*100),4)
+porcentaje_T15 <- round((nT_15/ntotal*100),4)
+porcentaje_C15 <- round((nC_15/ntotal*100),4)
+porcentaje_G15 <- round((nG_15/ntotal*100),4)
+
+#16
+nA_16 <- str_count(sequences_comp[16],pattern="a")
+nT_16 <- str_count(sequences_comp[16],pattern="t")
+nC_16 <- str_count(sequences_comp[16],pattern="c")
+nG_16 <- str_count(sequences_comp[16],pattern="g")
+ntotal <- str_count(sequences_comp[16])
+porcentaje_A16 <- round((nA_16/ntotal*100),4)
+porcentaje_T16 <- round((nT_16/ntotal*100),4)
+porcentaje_C16 <- round((nC_16/ntotal*100),4)
+porcentaje_G16 <- round((nG_16/ntotal*100),4)
+
+#17
+nA_17 <- str_count(sequences_comp[17],pattern="a")
+nT_17 <- str_count(sequences_comp[17],pattern="t")
+nC_17 <- str_count(sequences_comp[17],pattern="c")
+nG_17 <- str_count(sequences_comp[17],pattern="g")
+ntotal <- str_count(sequences_comp[17])
+porcentaje_A17 <- round((nA_17/ntotal*100),4)
+porcentaje_T17 <- round((nT_17/ntotal*100),4)
+porcentaje_C17 <- round((nC_17/ntotal*100),4)
+porcentaje_G17 <- round((nG_17/ntotal*100),4)
+
+#18
+nA_18 <- str_count(sequences_comp[18],pattern="a")
+nT_18 <- str_count(sequences_comp[18],pattern="t")
+nC_18 <- str_count(sequences_comp[18],pattern="c")
+nG_18 <- str_count(sequences_comp[18],pattern="g")
+ntotal <- str_count(sequences_comp[18])
+porcentaje_A18 <- round((nA_18/ntotal*100),4)
+porcentaje_T18 <- round((nT_18/ntotal*100),4)
+porcentaje_C18 <- round((nC_18/ntotal*100),4)
+porcentaje_G18 <- round((nG_18/ntotal*100),4)
+
+#19
+nA_19 <- str_count(sequences_comp[19],pattern="a")
+nT_19 <- str_count(sequences_comp[19],pattern="t")
+nC_19 <- str_count(sequences_comp[19],pattern="c")
+nG_19 <- str_count(sequences_comp[19],pattern="g")
+ntotal <- str_count(sequences_comp[19])
+porcentaje_A19 <- round((nA_19/ntotal*100),4)
+porcentaje_T19 <- round((nT_19/ntotal*100),4)
+porcentaje_C19 <- round((nC_19/ntotal*100),4)
+porcentaje_G19 <- round((nG_19/ntotal*100),4)
+
+#20
+nA_20 <- str_count(sequences_comp[20],pattern="a")
+nT_20 <- str_count(sequences_comp[20],pattern="t")
+nC_20 <- str_count(sequences_comp[20],pattern="c")
+nG_20 <- str_count(sequences_comp[20],pattern="g")
+ntotal <- str_count(sequences_comp[20])
+porcentaje_A20 <- round((nA_20/ntotal*100),4)
+porcentaje_T20 <- round((nT_20/ntotal*100),4)
+porcentaje_C20 <- round((nC_20/ntotal*100),4)
+porcentaje_G20 <- round((nG_20/ntotal*100),4)
+
+```
+
+```{r}
+require(ggplot2)
+require(reshape2)
+data<-data.frame(Secuencia=c("NC_045512","OV054768.1","MZ433432.1","MZ477859.1","OK091006.1","OM570264.1","KY862074.1","AB691767.2","KU131570.1","MH940245.1","MG923481.1","NC_019843.3","OP712623.1","MG428702.1","JX504050.1","HM034837.1","ON128609.1","AB691766.2","OM386799.1","JX163928.1"), A = c(porcentaje_A1, porcentaje_A2, porcentaje_A3, porcentaje_A4, porcentaje_A5, porcentaje_A6, porcentaje_A7, porcentaje_A8, porcentaje_A9, porcentaje_A10, porcentaje_A11, porcentaje_A12, porcentaje_A13, porcentaje_A14, porcentaje_A15, porcentaje_A16, porcentaje_A17, porcentaje_A18, porcentaje_A19, porcentaje_A20), T = c(porcentaje_T1, porcentaje_T2, porcentaje_T3, porcentaje_T4, porcentaje_T5, porcentaje_T6, porcentaje_T7, porcentaje_T8, porcentaje_T9, porcentaje_T10, porcentaje_T11, porcentaje_T12, porcentaje_T13, porcentaje_T14, porcentaje_T15, porcentaje_T16, porcentaje_T17, porcentaje_T18,porcentaje_T19, porcentaje_T20), C = c(porcentaje_C1, porcentaje_C2, porcentaje_C3, porcentaje_C4, porcentaje_C5, porcentaje_C6, porcentaje_C7, porcentaje_C8, porcentaje_C9, porcentaje_C10, porcentaje_C11, porcentaje_C12, porcentaje_C13, porcentaje_C14, porcentaje_C15, porcentaje_C16, porcentaje_C17, porcentaje_C18, porcentaje_C19, porcentaje_C20), G = c(porcentaje_G1, porcentaje_G2, porcentaje_G3, porcentaje_G4, porcentaje_G5, porcentaje_G6, porcentaje_G7, porcentaje_G8, porcentaje_G9, porcentaje_G10, porcentaje_G11, porcentaje_G12, porcentaje_G13, porcentaje_G14, porcentaje_G15, porcentaje_G16, porcentaje_G17, porcentaje_G18, porcentaje_G19, porcentaje_G20))
+
+data_melted <- melt(data, id.vars = "Secuencia", variable.name = "Nucleótido", value.name = "Porcentaje")
+
+ggplot(data_melted, aes(x=Secuencia, y=Porcentaje, fill = Nucleótido)) + geom_bar(stat = "identity", position = "dodge") + labs(x="Secuencia", y="Porcentaje", fill="Nucleótido") + ggtitle("Composición de nucleótidos") + theme_bw()
+```
+
+
+# 4. Realiza un análisis filogenético (alineamiento y construcción de árbol) de las secuencias.
+```{r}
+myAlignment <- msa(sequences_phylo)
+```
+
+```{r}
+save(myAlignment, file= "myAlignment_ev02.Rdata")
+```
+
+```{r}
+load("myAlignment_ev02.Rdata")
+```
+
+```{r}
+alignment <- msaConvert(myAlignment, "seqinr::alignment")
+str(alignment)
+distMatrix <- dist.alignment(alignment, "similarity")
+distMatrix
+```
+
+```{r}
+clustering <- hclust(distMatrix)
+phylotree <- as.phylo(clustering)
+
+A <- sequences <- unlist(myAlignment)
+
+# Obtén las secuencias individuales del objeto alignment
+dna_string_set <- DNAStringSet(A)
+
+if (!requireNamespace("devtools", quietly=TRUE))
+    install.packages("devtools")
+devtools::install_github("YuLab-SMU/ggmsa")
+library(ggmsa)
+
+if (!requireNamespace("patchwork", quietly=TRUE))
+    install.packages("patchwork")
+library(patchwork)
+
+if (!requireNamespace("ggpubr", quietly=TRUE))
+    install.packages("ggpubr")
+library(ggpubr)
+
+write.dna(as.character(myAlignment), "sequences_ev02.fasta", format = "fasta", colw = 40000)
+Fig1 <- ggmsa("sequences_ev02.fasta", start = 3000, end = 3070, color = "Taylor_AA", seq_name =TRUE)
+Fig1
+#tree <- ggtree(phylotree) + geom_tiplab(aling = TRUE, angle = 0)
+#tree <- tree + theme(legend.position = "none", plot.margin = margin(0.5,0.5,0.5,0.5, "cm"))
+#tree
+clustering <- hclust(distMatrix)
+phylotree <- as.phylo(clustering)
+plot(phylotree)
+#ggarrange(tree,Fig1, labels = c("A","B"),ncol= 1,nrow=2)
+```
+# 5. Agrega una interpretación escrita de tus gráficas y tus conclusiones según el caso de estudio que seleccionaste. No olvides sustentar tus argumentos con las lecturas que realizaste.
+ En el gráfico de los porcentajes de la composición de nucleótidos podemos observar que los distintos tipos de coronavirus humanos contienen una composición similar en cuanto a porcentajes de nucleótidos al SARS-CoV-2. En especial sus variantes Alpha, Beta, Delta, Gamma y Omicron. Además, se puede observar que las variantes de HCoV son las que presentan una mayor variación al contenido de nucleótidos del SARS-Cov-2. 
+ En el árbol filogenético, observamos que las variantes Alpha, Beta, Gamma, Delta y Omicron del coronavirus (NC_045512, OV054768.1, MZ433432.1, MZ477859.1, OK091006.1, OM570264.1) están muy cerca del SARS-Cov-2 (NC_045512), lo que quiere decir que la composición del genoma de las variantes y la del SARS-Cov-2 es muy similar. Asimismo, se puede observar que el virus de SARS-CoV (JX163928.1) es el virus más cercano en el árbol filogenético al SARS-Cov-2, lo que representa que es el coronavirus humano que contiene más similitud con el genoma de SARS-Cov-2. Después, está el MERS‐CoV (MG923481.1), el cual es el siguiente virus más cercano al genoma del SARS-CoV-2, y se puede apreciar en el árbol filogenético. Además, se puede observar que los virus HCoV y sus variantes, los cuales son los que más varían en la composición de nucleótidos, comparados con los del SARS-Cov-2, son los más alejados en árbol filogenético del este virus, es decir que comparten un ancestro en común más antiguo, teniendo menos similitudes con la composición del genoma del virus SARS-Cov-2.
+  En la gráfica del fragmento de alineamiento de las posiciones 3000 a 3070, se puede observar que en las variantes de SARS-Cov-2, y en el virus SARS-CoV no existe tanto los cambios en las posiciones de los nucleótidos. Además, se puede notar que en el virus MERS‐CoV, existe un poco más de variación en la posición de los nucleótidos a comparación del SARS-CoV-2, pero no es demasiado la diferencia. Sin embargo, en los virus HCoV y sus variantes, los cuales están más alejados del virus SARS-CoV-2 en el árbol filogenético, y varían más en el porcentaje de sus nucleótidos, el cambio de la posición en la composición de los nucleótidos es muy notable a comparación de la posición de los nucleótidos del virus SARS-CoV-2.
+
+
+#Referencias:
+Palacios Cruz, M., Santos, E., Velázquez Cervantes, M. A., & León Juárez, M. (2020). COVID-19, a worldwide public health emergency. COVID-19, una emergencia de salud pública mundial. Revista clinica espanola, 221(1), 55–61. Advance online publication. https://doi.org/10.1016/j.rce.2020.03.001
+
+Liu, K., Pan, X., Li, L., Yu, F., Zheng, A., Du, P., Han, P., Meng, Y., Zhang, Y., Wu, L., Chen, Q., Song, C., Jia, Y., Niu, S., Lu, D., Qiao, C., Chen, Z., Ma, D., Ma, X., Tan, S., … Wang, Q. (2021). Binding and molecular basis of the bat coronavirus RaTG13 virus to ACE2 in humans and other species. Cell, 184(13), 3438–3451.e10. https://doi.org/10.1016/j.cell.2021.05.031
+
+Deigin, Y., & Segreto, R. (2021). SARS-CoV-2's claimed natural origin is undermined by issues with genome sequences of its relative strains: Coronavirus sequences RaTG13, MP789 and RmYN02 raise multiple questions to be critically addressed by the scientific community. BioEssays : news and reviews in molecular, cellular and developmental biology, 43(7), e2100015. https://doi.org/10.1002/bies.202100015
+
+Mahdy MAA, Younis W and Ewaida Z (2020) An Overview of SARS-CoV-2 and Animal Infection. Front. Vet. Sci. 7:596391. doi: 10.3389/fvets.2020.596391
+
+Recuerda incluir tus datos personales y las referencias bibliográficas de tu investigación.
+
+Sube tu entregable a la plataforma en el formato indicado. Recuerda incluir la liga de tu video en el script.
